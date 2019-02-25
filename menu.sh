@@ -2,8 +2,8 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-Script_version="2.7bate"
-HTTP="eblog.ink"
+Script_version="2.7"
+HTTP="raw.githubusercontent.com"
 Blue_2="\033[34m"
 Font="\033[0m"
 Red="\033[31m" 
@@ -2314,14 +2314,14 @@ check_sys_information(){
 #更新脚本
 Update_Shell(){
 	echo -e "当前版本为 [ ${Script_version} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://${HTTP}/sh/menu.sh"|grep 'Script_version="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://${HTTP}/Eric-Qiu1994/sh/master/menu.sh"|grep 'Script_version="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && main
 	if [[ ${sh_new_ver} != ${Script_version} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
 		read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			wget -N --no-check-certificate https://${HTTP}/sh/menu.sh && chmod +x menu.sh
+			wget -N --no-check-certificate "https://${HTTP}/Eric-Qiu1994/sh/master/menu.sh" && chmod +x menu.sh
 			sleep 2s
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 			sleep 2s
