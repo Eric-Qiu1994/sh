@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-Script_version="2.8"
+Script_version="2.9"
 HTTP="raw.githubusercontent.com"
 Blue_2="\033[34m"
 Font="\033[0m"
@@ -968,9 +968,9 @@ fi
 
 #脚本权限别名设置
 Script_permissions_alias(){
-#set -i '$a alias o="rm -rf menu*"' /root/.bashrc
+#set -i '$a alias o="rm -rf menu.*"' /root/.bashrc
 #set -i '$a alias p="chmod 777 menu_main.sh"' /root/.bashrc
-echo "alias o='rm -rf menu*' " >> /root/.bashrc
+echo "alias o='rm -rf menu.*' " >> /root/.bashrc
 echo "alias p='chmod 777 menu_main.sh' " >> /root/.bashrc
 cd /root
 source ~/.bashrc
@@ -2342,11 +2342,11 @@ Update_Shell(){
 		read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			wget -N --no-check-certificate "https://${HTTP}/Eric-Qiu1994/sh/master/menu_main.sh" && chmod +x menu_main.sh
+			wget -N --no-check-certificate https://${HTTP}/Eric-Qiu1994/sh/master/menu_main.sh && chmod +x menu_main.sh
 			sleep 2s
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 			sleep 2s
-			./menu.sh
+			./menu_main.sh
 		else
 			echo && echo "	已取消..." && echo
 			echo -e "正在返回主菜单..."
