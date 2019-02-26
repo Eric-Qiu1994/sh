@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-Script_version="2.7"
+Script_version="2.8"
 HTTP="raw.githubusercontent.com"
 Blue_2="\033[34m"
 Font="\033[0m"
@@ -172,7 +172,7 @@ main
 
 #调用TCP一键加速脚本
 call_tcp(){
-wget https://eblog.ink/sh/tcp.sh && chmod +x tcp.sh && bash tcp.sh
+wget -N --no-check-certificate "https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && bash tcp.sh
 }
 
 #安装软件
@@ -848,10 +848,11 @@ ${Blue_2}  6. ${Font}Centos终端-bash-4.2#
 ${Blue_2}  7. ${Font}结束指定端口所在的进程
 ${Blue_2}  8. ${Font}设置系统时间，同步时间
 ${Blue_2}  9. ${Font}获取Linux kernel版本号
-${Blue_2} 10. ${Font}返回主菜单
+${Blue_2} 10. ${Font}
+${Blue_2} 11. ${Font}返回主菜单
 ——————————————————" && echo
 
-read -p "请输入数字 [1-10]:" num7
+read -p "请输入数字 [1-11]:" num7
 case "${num7}" in
 	1)find_file
 	;;
@@ -871,11 +872,13 @@ case "${num7}" in
 	;;
 	9)Linux_kernel_version
 	;;
-	10)main
+	10)
+	;;
+	11)main
 	;;
 	*)
 	clear
-	echo -e "${Blue_2}请输入正确数字 [1-10]${Font}"
+	echo -e "${Blue_2}请输入正确数字 [1-11]${Font}"
 	sleep 2s
 	some_tools
 	;;
@@ -903,9 +906,9 @@ else
 		some_tools
 	else
 		echo -e "${Red_Info}确定结束该端口所在的进程？？"
-		read -p "${Red}Y Or N (默认为N)" yn
+		read -p "Y Or N (默认为N)" yn
 		[[ -z "${yn}" ]] && yn="n" 
-		if [[ $yn == [Yn] ]]; then
+		if [[ $yn == [Yy] ]]; then
 			echo -e "${Red_Info}正在结束进程!!"
 			kill -9 ${process_pid}
 			echo -e "${Red_Info}已成功结束进程，正在返回！"
@@ -1117,8 +1120,9 @@ fi
 }
 
 
-#更新kernel
+#内核  更新
 kernel_update(){
+ovz_no
 clear
 echo && echo -e "${Red}你想做什么?${Font}
 
@@ -1892,16 +1896,17 @@ root_need
 clear
 echo && echo -e "${Blue_2}  Linux VPS一键添加/删除swap脚本${Font}
 ————————————
-${Blue_2}  1.  ${Font}添加swap
-${Blue_2}  2.  ${Font}删除swap
+${Blue_2}  1.  ${Font}添加KVM Swap
+${Blue_2}  2.  ${Font}删除KVM Swap
 ————————————
 ${Blue_2}  3.  ${Font}查看SWAP使用情况
 ${Blue_2}  4.  ${Font}内存与虚拟内存命令
 ————————————
-${Blue_2}  5.  ${Font}返回主菜单
+${Blue_2}  5   ${Font}给Ovz添加Swap 空间
+${Blue_2}  6.  ${Font}返回主菜单
 ————————————" && echo
 
-read -p "请输入数字 [1-5]:" num1
+read -p "请输入数字 [1-6]:" num1
 case "$num1" in
 		1)
 		add_swap
@@ -1913,7 +1918,9 @@ case "$num1" in
 		;;
 		4)check_swapmemory
 		;;
-		5)main
+		5)openvz_add_swap
+		;;
+		6)main
 		;;
 		*)
 		clear
@@ -1922,6 +1929,19 @@ case "$num1" in
 		set_swap
 		;;
 		esac
+}
+
+#给Openvz 添加Swap 空间
+openvz_add_swap(){
+SWAP="${1:-512}"
+NEW="$[SWAP*1024]"; TEMP="${NEW//?/ }"; OLD="${TEMP:1}0"
+umount /proc/meminfo 2> /dev/null
+sed "/^Swap\(Total\|Free\):/s,$OLD,$NEW," /proc/meminfo > /etc/fake_meminfo
+mount --bind /etc/fake_meminfo /proc/meminfo
+
+echo -e "添加完成，正在返回菜单..."
+sleep 2s
+set_swap
 }
 
 #查看swap使用情况
@@ -1938,7 +1958,7 @@ elif [[ $xyz == [Yy] ]]; then
 fi
 }
 
-#查看内存和虚拟内存命令
+#查看内存与虚拟内存命令
 check_memory_swap(){
 cat /proc/meminfo | grep Swap
 read -p "输入x返回主菜单，输入y返回本菜单，任意键退出:" xyz
@@ -1952,6 +1972,7 @@ elif [[ $xyz == [Yy] ]]; then
 fi
 }
 
+#添加KVM Swap
 add_swap(){
 	ovz_no
 	echo -e "${Blue_2}请输入需要添加的swap，建议为内存的2倍！${Font}"
@@ -1985,8 +2006,8 @@ add_swap(){
 	fi
 }
 
+#删除KVM Swap
 del_swap(){
-	ovz_no
 	#检查是否存在swapfile
 	grep -q "swapfile" /etc/fstab
 
@@ -2314,14 +2335,14 @@ check_sys_information(){
 #更新脚本
 Update_Shell(){
 	echo -e "当前版本为 [ ${Script_version} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://${HTTP}/Eric-Qiu1994/sh/master/menu.sh"|grep 'Script_version="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://${HTTP}/Eric-Qiu1994/sh/master/menu_main.sh"|grep 'Script_version="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && main
 	if [[ ${sh_new_ver} != ${Script_version} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
 		read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			wget -N --no-check-certificate "https://${HTTP}/Eric-Qiu1994/sh/master/menu.sh" && chmod +x menu.sh
+			wget -N --no-check-certificate "https://${HTTP}/Eric-Qiu1994/sh/master/menu_main.sh" && chmod +x menu.sh
 			sleep 2s
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 			sleep 2s
